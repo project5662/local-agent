@@ -88,7 +88,7 @@ Motivering: `qwen2.5-coder:7b` (Q4_K_M-kvantisering via Ollama) är den gemensam
 
 ## Lokalitet och säkerhet
 
-- **Nätverk:** `ollama pull` hämtar modellvikter över internet (engångskostnad per modell, cachas lokalt). All efterföljande inferens/chatt/RAG sker helt lokalt via `localhost:11434` — ingen kod eller data skickas till någon molntjänst under användning.
+- **Nätverk:** `ollama pull` hämtar modellvikter över internet (engångsnedladdning per modell, ~4-5GB för `qwen2.5-coder:7b`, ~275MB för `nomic-embed-text`, cachas lokalt på disk). Detta kräver bandbredd/tid men **ingen betalning** — modellerna är gratis, öppna viktfiler, inget konto eller prenumeration krävs. All efterföljande inferens/chatt/RAG sker helt lokalt via `localhost:11434` utan löpande kostnad — ingen kod eller data skickas till någon molntjänst under användning.
 - **Filformat:** Modeller distribueras som GGUF (binära vikter), inte som körbar kod eller Python pickle — GGUF kan inte exekvera godtycklig kod vid inladdning, till skillnad från äldre `.pt`/`.bin`-checkpoints.
 - **Modellernas ursprung:** `qwen2.5-coder` (Alibaba) och `nomic-embed-text` (Nomic AI) är etablerade, brett använda open-weight-modeller — inte formellt säkerhetsreviderade, men väl beprövade av en stor community.
 - **Verktygsbegränsning:** Agentens verktyg är read-only i v1 (ingen skriv- eller shell-åtkomst), så värsta möjliga utfall av ett modellmisstag är ett dåligt textförslag, inte förstörd kod eller körda kommandon.
