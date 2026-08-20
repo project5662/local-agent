@@ -15,7 +15,11 @@ def grep(pattern: str, root: str):
         if not path.is_file():
             continue
 
-        lines = path.read_text().splitlines()
+        try:
+            lines = path.read_text().splitlines()
+        except UnicodeDecodeError:
+            continue
+        
         for line_number, line in enumerate(lines, start=1):
             if pattern in line:
                 matches.append(f"{path}:{line_number}: {line}")

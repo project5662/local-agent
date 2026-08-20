@@ -88,14 +88,24 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
                 return message.content
             function_name = fallback["name"]
             arguments = fallback["arguments"]
-            result = tool_dispatch[function_name](**arguments)
+
+            try:
+                result = tool_dispatch[function_name](**arguments)
+            except Exception as e:
+                result = f"Error running {function_name}: {e}"
+
             history.append({"role": "tool", "content": str(result), "name": function_name})
             continue
 
         for tool_call in message.tool_calls:
             function_name = tool_call.function.name
             arguments = tool_call.function.arguments
-            result = tool_dispatch[function_name](**arguments)
+
+            try:
+                result = tool_dispatch[function_name](**arguments)
+            except Exception as e:
+                result = f"Error running {function_name}: {e}"
+
             history.append({"role": "tool", "content": str(result), "name": function_name})
 
     return "Agenten gav upp efter för många steg utan ett slutgiltigt svar"
