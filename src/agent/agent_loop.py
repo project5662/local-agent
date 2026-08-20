@@ -1,5 +1,21 @@
+import json
 from . import config
 from .ollama_client import chat
+
+def _try_parse_fallback_tool_call(content):
+    if content == None:
+        return None
+
+    text = content.replace("<tool_call>", "").replace("</tool_call>", "").strip()
+
+    try:
+        data = json.loads(text)
+    except (json.JSONDecodeError, TypeError):
+        return None
+
+    if isinstance(data, dict) and "name" in data and "arguments" in data:
+        return data
+    return None
 
 TOOL_SCHEMAS = [
     {
@@ -67,7 +83,14 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
         history.append({"role": "assistant", "content": message.content, "tool_calls": message.tool_calls})
 
         if not message.tool_calls:
-            return message.content
+            fallback = _try_parse_fallback_tool_call(message.content)
+            if fallback is None:
+                return message.content
+            function_name = fallback["name"]
+            arguments = fallback["arguments"]
+            result = tool_dispatch[function_name](**arguments)
+            history.append({"role": "tool", "content": str(result), "name": function_name})
+            continue
 
         for tool_call in message.tool_calls:
             function_name = tool_call.function.name
