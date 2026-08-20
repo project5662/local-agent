@@ -25,7 +25,7 @@ def _spinner(stop_event):
 
         if tick %6 == 0:
             word = random.choice(PROMPT_WORDS)
-        time.sleep(0.9)
+        time.sleep(0.3)
     print("\r" + " " * 40 +"\r", end="", flush=True)
 
 @click.group()
@@ -57,7 +57,19 @@ def chat(path):
         "list_dir": lambda path: tools.list_dir(path),
         "search_code": lambda query, top_k: tools.search_code(retriever, query, top_k),
     }
-    history = []
+
+    system_prompt = (
+        "You are a coding assistant with access to tools that let you explore a real "
+        "codebase on disk: search_code (semantic search over indexed code), grep (exact "
+        "text search), read_file, and list_dir. When asked about code, functions, or "
+        "errors, use these tools to look up the real answer before responding. "
+        "IMPORTANT: Once a tool call returns results that answer the question, STOP "
+        "calling tools and write your final answer directly using those results. "
+        "Do not call the same tool again with the same or similar arguments."
+    )
+
+    history = [{"role": "system", "content": system_prompt}]
+    
     while True:
         user_input = input("Vad fan behöver du hjälp med nu då!? ")
         if user_input in ("exit", "quit"):
