@@ -6,7 +6,8 @@ def _try_parse_fallback_tool_call(content):
     if content == None:
         return None
 
-    text = content.replace("<tool_call>", "").replace("</tool_call>", "").strip()
+    text = content.replace("<tool_call>", "").replace("</tool_call>", "")
+    text = text.replace("```json", "").replace("```", "").strip()
 
     try:
         data = json.loads(text)

@@ -12,3 +12,8 @@ def test_parses_tool_call_wrapped_in_tags():
 
 def test_returns_none_for_normal_text():
     assert _try_parse_fallback_tool_call("Det här är bara ett vanligt svar.") is None
+
+def test_parses_tool_call_wrapped_in_markdown_fence():
+    content = '```json\n{"name": "grep", "arguments": {"pattern": "x", "root": "."}}\n```'
+    result = _try_parse_fallback_tool_call(content)
+    assert result == {"name": "grep", "arguments": {"pattern": "x", "root": "."}}
