@@ -4,9 +4,15 @@ CHAT_MODEL = "qwen2.5-coder:7b"
 # Modell som används för embeddings (RAG)
 EMBED_MODEL = "nomic-embed-text"
 
-# Hur många rader per chunk vid indexering, och hur mycket överlapp mellan chunks
-CHUNK_SIZE_LINES = 300
-CHUNK_OVERLAP_LINES = 50
+# Hur många rader per chunk vid indexering, och hur mycket överlapp mellan chunks.
+# 80 rader är satt för att pålitligt hålla sig inom nomic-embed-text:s
+# standardkontextfönster (2048 tokens) i Ollama, testat mot hela projektet.
+# OBS: chunking.py mäter bara radantal, inte faktisk teckentäthet — en fil med
+# få men mycket långa rader (t.ex. tät markdown/kod) kan fortfarande i teorin
+# överskrida gränsen även med denna chunk-storlek. 80 gav marginal (värsta
+# uppmätta chunk: ~4300 tecken, ca hälften av gränsen) men är ingen garanti.
+CHUNK_SIZE_LINES = 80
+CHUNK_OVERLAP_LINES = 15
 
 # Hur många chunks Retriever hämtar per fråga som default
 DEFAULT_TOP_K = 5
