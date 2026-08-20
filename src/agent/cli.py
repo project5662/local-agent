@@ -69,7 +69,8 @@ def chat(path):
     )
 
     history = [{"role": "system", "content": system_prompt}]
-    
+    print(f"Kör med {config.CHAT_MODEL}")
+
     while True:
         user_input = input("Vad fan behöver du hjälp med nu då!? ")
         if user_input in ("exit", "quit"):
