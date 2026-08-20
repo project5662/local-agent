@@ -74,6 +74,10 @@ def chat(path):
         user_input = input("Vad fan behöver du hjälp med nu då!? ")
         if user_input in ("exit", "quit"):
             break
+        if user_input.strip().lower() in ("7b", "14b"):
+            config.CHAT_MODEL = f"qwen2.5-coder:{user_input.strip().lower()}"
+            print(f"Bytte till {config.CHAT_MODEL}")
+            continue
 
         stop_event = threading.Event()
         spinner_thread = threading.Thread(target=_spinner, args=(stop_event,))
