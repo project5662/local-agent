@@ -76,10 +76,20 @@ TOOL_SCHEMAS = [
     },
 ]
 
+def _trim_history(history, max_messages=10):
+    if len(history) <= max_messages:
+        return history
+
+    else:
+        system_messages = [m for m in history if m["role"] == "system"]
+        other_messages = [m for m in history if m["role"] != "system"]
+        return system_messages + other_messages[-max_messages:]
+
 def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
     history.append({"role": "user", "content": user_message})
 
     for _ in range(config.MAX_AGENT_ITERATIONS):
+        history[:] = _trim_history(history)
         try:
             message = chat(history, tools=TOOL_SCHEMAS)
         except Exception as e:
