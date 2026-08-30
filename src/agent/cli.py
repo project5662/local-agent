@@ -85,6 +85,16 @@ def chat(path):
             config.CHAT_MODEL = MODEL_ALIASES[user_input.strip().lower()]
             print(f"Bytte till {config.CHAT_MODEL}")
             continue
+        if user_input.strip().lower() == "paste":
+            print("Klistra in din kod/text, avsluta med en rad som bara innehåller END:")
+            lines = []
+            while True:
+                line = input()
+                if line.strip().upper() == "END":
+                    break
+                lines.append(line)
+            user_input = "\n".join(lines)
+
 
         stop_event = threading.Event()
         spinner_thread = threading.Thread(target=_spinner, args=(stop_event,))
