@@ -6,5 +6,5 @@ def embed(text: str):
     return response["embedding"]
 
 def chat(messages: list[dict], tools: list[dict] | None=None):
-    response = ollama.chat(model=config.CHAT_MODEL, messages=messages, tools=tools)
+    response = ollama.chat(model=config.CHAT_MODEL, messages=messages, tools=tools, think=False)
     return response["message"]
