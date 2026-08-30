@@ -13,6 +13,12 @@ from . import tools
 
 PROMPT_WORDS = ["Sjung en sång", "Dansa en dans", "Fundera inte mer", "Livet löser sig", "Lek ha kul", "En dag ska vi ändå dö", "Lika bra att le", "Jobb kan vi hoppas på", "Res till Mallorca"]
 
+MODEL_ALIASES = {
+    "7b": "qwen2.5-coder:7b",
+    "14b": "qwen2.5-coder:14b",
+    "3.8": "qwen3.8:27b-q4_K_M",
+}
+
 def _spinner(stop_event):
     dot_patterns = [".", "..", "..."]
     word = random.choice(PROMPT_WORDS)
@@ -69,14 +75,14 @@ def chat(path):
     )
 
     history = [{"role": "system", "content": system_prompt}]
-    print(f"Kör med {config.CHAT_MODEL}")
+  
 
     while True:
         user_input = input("Vad fan behöver du hjälp med nu då!? ")
         if user_input in ("exit", "quit"):
             break
-        if user_input.strip().lower() in ("7b", "14b"):
-            config.CHAT_MODEL = f"qwen2.5-coder:{user_input.strip().lower()}"
+        if user_input.strip().lower() in MODEL_ALIASES:
+            config.CHAT_MODEL = MODEL_ALIASES[user_input.strip().lower()]
             print(f"Bytte till {config.CHAT_MODEL}")
             continue
 
