@@ -10,6 +10,7 @@ from .retriever import Retriever
 from .ollama_client import embed
 from .agent_loop import run_agent_loop
 from . import tools
+from chromadb.config import Settings
 
 PROMPT_WORDS = ["Sjung en sång", "Dansa en dans", "Fundera inte mer", "Livet löser sig", "Lek ha kul", "En dag ska vi ändå dö", "Lika bra att le", "Jobb kan vi hoppas på", "Res till Mallorca"]
 
@@ -44,7 +45,10 @@ def index(path):
     #1
     project_root = Path(path).resolve()
     #2
-    chroma_client = chromadb.PersistentClient(path=str(project_root / config.CHROMA_PERSIST_DIR))
+    chroma_client = chromadb.PersistentClient(
+        path=str(project_root / config.CHROMA_PERSIST_DIR),
+        settings=Settings(anonymized_telemetry=False),
+    )
     collection_name = project_root.name
     collection = build_index(project_root, chroma_client, collection_name, embed_fn=embed)
     print(f"Indexerade {collection.count()} chunks från {project_root}")
@@ -54,7 +58,10 @@ def index(path):
 @click.argument("path")
 def chat(path):
     project_root = Path(path).resolve()
-    chorma_client = chromadb.PersistentClient(path=str(project_root / config.CHROMA_PERSIST_DIR))
+    chorma_client = chromadb.PersistentClient(
+        path=str(project_root / config.CHROMA_PERSIST_DIR),
+        settings=Settings(anonymized_telemetry=False),
+    )
     collection = chorma_client.get_collection(project_root.name)
     retriever = Retriever(collection, embed_fn=embed)
     tool_dispatch = {
