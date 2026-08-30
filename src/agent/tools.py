@@ -5,6 +5,14 @@ def read_file(path: str):
         return Path(path).read_text()
     except Exception:
         return f"Error: file not found {path}"
+
+
+def is_within_project(path_str, project_root):
+    try:
+        resolved = Path(path_str).resolve()
+        return resolved.is_relative_to(project_root.resolve())
+    except Exception:
+        return False
     
 
 def grep(pattern: str, root: str):

@@ -1,4 +1,4 @@
-from agent.tools import read_file, grep, list_dir
+from agent.tools import read_file, grep, list_dir, is_within_project
 
 def test_read_file_returns_content(tmp_path):
     p = tmp_path / "a.py"
@@ -22,3 +22,15 @@ def test_list_dir_lists_entries(tmp_path):
     entries = list_dir(str(tmp_path))
     assert "a.py" in entries
     assert "sub" in entries
+
+def test_is_within_project_accepts_paths_inside(tmp_path):
+    (tmp_path / "sub").mkdir()
+    assert is_within_project(str(tmp_path), tmp_path) is True
+    assert is_within_project(str(tmp_path / "sub"), tmp_path) is True
+
+def test_is_within_project_rejects_paths_outside(tmp_path):
+    outside = tmp_path.parent / "not-the-project"
+    assert is_within_project(str(outside), tmp_path) is False
+
+def test_is_within_project_rejects_traversal(tmp_path):
+    assert is_within_project(str(tmp_path / ".." / ".."), tmp_path) is False

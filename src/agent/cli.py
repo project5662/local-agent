@@ -58,9 +58,9 @@ def chat(path):
     collection = chorma_client.get_collection(project_root.name)
     retriever = Retriever(collection, embed_fn=embed)
     tool_dispatch = {
-        "read_file": lambda path: tools.read_file(path),
-        "grep": lambda pattern, root: tools.grep(pattern, root),
-        "list_dir": lambda path: tools.list_dir(path),
+        "read_file": lambda path: tools.read_file(path) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
+        "grep": lambda pattern, root: tools.grep(pattern, root) if tools.is_within_project(root, project_root) else f"Error: path is outside the project directory: {root}",
+        "list_dir": lambda path: tools.list_dir(path) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
         "search_code": lambda query, top_k: tools.search_code(retriever, query, top_k),
     }
 
