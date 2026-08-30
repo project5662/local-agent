@@ -80,7 +80,11 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
     history.append({"role": "user", "content": user_message})
 
     for _ in range(config.MAX_AGENT_ITERATIONS):
-        message = chat(history, tools=TOOL_SCHEMAS)
+        try:
+            message = chat(history, tools=TOOL_SCHEMAS)
+        except Exception as e:
+            return f"Fel vid anrop till modellen: {e}"
+
         history.append({"role": "assistant", "content": message.content, "tool_calls": message.tool_calls})
 
         if not message.tool_calls:
