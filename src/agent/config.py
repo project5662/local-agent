@@ -15,7 +15,7 @@ CHUNK_SIZE_LINES = 80
 CHUNK_OVERLAP_LINES = 15
 
 # Hur många chunks Retriever hämtar per fråga som default
-DEFAULT_TOP_K = 5
+DEFAULT_TOP_K = 10
 
 # Mappar som aldrig ska indexeras, oavsett .gitignore
 DEFAULT_IGNORE_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", "build", ".agent_index"}
