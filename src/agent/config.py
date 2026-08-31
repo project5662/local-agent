@@ -26,7 +26,7 @@ DEFAULT_IGNORE_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "
 DEFAULT_IGNORE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".pdf", ".zip", ".so", ".pyc", ".whl", ".bin"}
 
 # Max antal loop-iterationer i agent-loopen innan vi ger upp
-MAX_AGENT_ITERATIONS = 6
+MAX_AGENT_ITERATIONS = 12
 
 # Var Chroma sparar sin data på disk (relativt den indexerade projektmappen)
 CHROMA_PERSIST_DIR = ".agent_index"
