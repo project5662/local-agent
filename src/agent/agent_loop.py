@@ -11,11 +11,21 @@ def _try_parse_fallback_tool_call(content):
 
     try:
         data = json.loads(text)
+        if isinstance(data, dict) and "name" in data and "arguments" in data:
+            return data
     except (json.JSONDecodeError, TypeError):
-        return None
+            pass
 
-    if isinstance(data, dict) and "name" in data and "arguments" in data:
-        return data
+    decoder = json.JSONDecoder()
+    for i, char in enumerate(text):
+        if char == "{":
+            try:
+                data, _ = decoder.raw_decode(text, i)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(data, dict) and "name" in data and "arguments" in data:
+                return data
+
     return None
 
 TOOL_SCHEMAS = [
