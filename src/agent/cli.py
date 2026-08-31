@@ -69,6 +69,7 @@ def chat(path):
         "grep": lambda pattern, root: tools.grep(pattern, str(tools.resolve_within_project(root, project_root))) if tools.is_within_project(root, project_root) else f"Error: path is outside the project directory: {root}",
         "list_dir": lambda path: tools.list_dir(str(tools.resolve_within_project(path, project_root))) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
         "search_code": lambda query, top_k: tools.search_code(retriever, query, top_k),
+        "find_max_stock": lambda data_path: tools.find_max_stock(str(tools.resolve_within_project(data_path, project_root))) if tools.is_within_project(data_path, project_root) else f"Error: outside project: {data_path}",
     }
 
     system_prompt = (

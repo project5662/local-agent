@@ -74,6 +74,22 @@ TOOL_SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_max_stock",
+            "description": (
+                "Find which article has the highest total quantity, "
+                "summed across all its warehouse locations, in a fixed-width "
+                "inventory data file (e.g. lager.dat)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {"data_path": {"type": "string"}},
+                "required": ["data_path"],
+            },
+        },
+    },
 ]
 
 def _trim_history(history, max_messages=10):
