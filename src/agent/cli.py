@@ -88,7 +88,9 @@ def chat(path):
         "ALWAYS read lager_copybook.txt first to get the field layout, then read "
         "or grep lager.dat to find the relevant line(s) — do not wait to be told "
         "to do this explicitly. An article can appear on multiple lines (one per "
-        "location); sum lagerstatus across matching lines when asked for a total."
+        "location); sum lagerstatus across matching lines when asked for a total. "
+        "If asked which article has the most total stock, use the find_max_stock "
+        "tool directly instead of reading the whole file yourself."
     )
 
     history = [{"role": "system", "content": system_prompt}]
