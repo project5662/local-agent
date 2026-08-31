@@ -65,9 +65,9 @@ def chat(path):
     collection = chorma_client.get_collection(project_root.name)
     retriever = Retriever(collection, embed_fn=embed)
     tool_dispatch = {
-        "read_file": lambda path: tools.read_file(path) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
-        "grep": lambda pattern, root: tools.grep(pattern, root) if tools.is_within_project(root, project_root) else f"Error: path is outside the project directory: {root}",
-        "list_dir": lambda path: tools.list_dir(path) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
+        "read_file": lambda path: tools.read_file(str(tools.resolve_within_project(path, project_root))) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
+        "grep": lambda pattern, root: tools.grep(pattern, str(tools.resolve_within_project(root, project_root))) if tools.is_within_project(root, project_root) else f"Error: path is outside the project directory: {root}",
+        "list_dir": lambda path: tools.list_dir(str(tools.resolve_within_project(path, project_root))) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
         "search_code": lambda query, top_k: tools.search_code(retriever, query, top_k),
     }
 
@@ -78,7 +78,16 @@ def chat(path):
         "errors, use these tools to look up the real answer before responding. "
         "IMPORTANT: Once a tool call returns results that answer the question, STOP "
         "calling tools and write your final answer directly using those results. "
-        "Do not call the same tool again with the same or similar arguments."
+        "Do not call the same tool again with the same or similar arguments. "
+        "This project also contains a warehouse inventory system: 'lager.dat' is a "
+        "fixed-width data file where each line is one article's stock at one "
+        "location, and 'lager_copybook.txt' describes the exact field layout "
+        "(article number, name, stock quantity, category, location). Whenever "
+        "asked about stock, inventory, article numbers, or warehouse locations, "
+        "ALWAYS read lager_copybook.txt first to get the field layout, then read "
+        "or grep lager.dat to find the relevant line(s) — do not wait to be told "
+        "to do this explicitly. An article can appear on multiple lines (one per "
+        "location); sum lagerstatus across matching lines when asked for a total."
     )
 
     history = [{"role": "system", "content": system_prompt}]

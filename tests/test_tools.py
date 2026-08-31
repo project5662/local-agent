@@ -1,4 +1,5 @@
-from agent.tools import read_file, grep, list_dir, is_within_project
+from pathlib import Path
+from agent.tools import read_file, grep, list_dir, is_within_project, resolve_within_project
 
 def test_read_file_returns_content(tmp_path):
     p = tmp_path / "a.py"
@@ -34,3 +35,15 @@ def test_is_within_project_rejects_paths_outside(tmp_path):
 
 def test_is_within_project_rejects_traversal(tmp_path):
     assert is_within_project(str(tmp_path / ".." / ".."), tmp_path) is False
+
+def test_resolve_within_project_joins_relative_paths(tmp_path):
+    assert resolve_within_project("lager.dat", tmp_path) == tmp_path / "lager.dat"
+
+def test_resolve_within_project_leaves_absolute_paths_unchanged(tmp_path):
+    absolute = tmp_path / "sub" / "lager.dat"
+    assert resolve_within_project(str(absolute), tmp_path) == absolute
+
+def test_is_within_project_accepts_relative_path_regardless_of_cwd(tmp_path, monkeypatch):
+    (tmp_path / "lager.dat").write_text("data")
+    monkeypatch.chdir(tmp_path.parent)
+    assert is_within_project("lager.dat", tmp_path) is True
