@@ -111,7 +111,7 @@ def _trim_history(history, max_messages=10):
         other_messages = [m for m in history if m["role"] != "system"]
         return system_messages + other_messages[-max_messages:]
 
-def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
+def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, status_holder=None):
     history.append({"role": "user", "content": user_message})
 
     for _ in range(config.MAX_AGENT_ITERATIONS):
@@ -131,6 +131,8 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
             arguments = fallback["arguments"]
 
             try:
+                if status_holder is not None:
+                    status_holder[0] = f"Using tool: {function_name}"
                 result = tool_dispatch[function_name](**arguments)
             except Exception as e:
                 result = f"Error running {function_name}: {e}"
@@ -143,6 +145,8 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict):
             arguments = tool_call.function.arguments
 
             try:
+                if status_holder is not None:
+                    status_holder[0] = f"Using tool: {function_name}"
                 result = tool_dispatch[function_name](**arguments)
             except Exception as e:
                 result = f"Error running {function_name}: {e}"
