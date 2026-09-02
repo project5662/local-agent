@@ -1,3 +1,5 @@
+import ast
+
 def chunk_text(text: str, chunk_size_lines: int, overlap_lines: int):
     #1
     if len(text) == 0:
@@ -21,4 +23,24 @@ def chunk_text(text: str, chunk_size_lines: int, overlap_lines: int):
         start += step
     return chunks
 
+def chunk_python_code(text: str) -> list[str] | None:
+  
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return None
 
+    rows = text.splitlines()
+
+    
+    chunks = []
+
+    for node in tree.body:
+      
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            start = node.lineno - 1
+            end = node.end_lineno
+            chunk_lines = rows[start:end]
+            chunks.append("\n".join(chunk_lines))
+    
+    return chunks
