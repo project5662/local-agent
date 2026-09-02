@@ -112,7 +112,7 @@ def chat(path):
     )
 
     logging.basicConfig(
-        filename="agent.log",
+        filename=project_root / "agent.log",
         level=logging.INFO,
         format="%(asctime)s %(message)s"
     )
@@ -134,7 +134,6 @@ def chat(path):
                     break
                 lines.append(line)
             user_input = "\n".join(lines)
-
 
         stop_event = threading.Event()
         status_holder = [""]
