@@ -100,7 +100,11 @@ def chat(path):
 
     history = [{"role": "system", "content": system_prompt}]
 
-    console.print(f"[bold cyan]Hi, I'm your local coding agent[/bold cyan] (running {config.CHAT_MODEL}). Ask me anything about this project — type 'exit' to quit.")
+    console.print(
+        f"[bold cyan]Hi, I'm your local coding agent[/bold cyan] (running {config.CHAT_MODEL}). "
+        f"Ask me anything about this project — type 'exit' to quit. "
+        f"To switch models, just type 7b, 14b, or 3.8."
+    )
 
     while True:
         user_input = console.input("[bold cyan]You:[/bold cyan] ")
