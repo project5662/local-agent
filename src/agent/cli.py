@@ -106,7 +106,12 @@ def chat(path):
         "When asked for code improvements or suggestions, do NOT reproduce the entire "
         "file. Show only a focused diff of the relevant part - the current code next "
         "to your suggested change, like a git diff (lines starting with - for removed, "
-        "+ for added) - followed by a short explanation of what changed and why."
+        "+ for added) - followed by a short explanation of what changed and why. "
+        "CRITICAL: Never invent, guess, or assume a file path. Only ever use a path "
+        "that was explicitly returned to you by list_dir, search_code, or grep in "
+        "this conversation. If you need to read a specific file but don't already "
+        "have its exact, confirmed path, call list_dir or search_code FIRST to find "
+        "it - do not guess a plausible-sounding filename."
     )
 
     history = [{"role": "system", "content": system_prompt}]
