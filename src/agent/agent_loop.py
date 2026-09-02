@@ -1,9 +1,17 @@
 import json
 import logging
+import re
 from . import config
 from .ollama_client import chat
 
 logger = logging.getLogger(__name__)
+
+def _strip_leaked_tags(text):
+    if text is None:
+        return text
+    text = re.sub(r"<tool_response>.*?</tool_response>", "", text, flags=re.DOTALL)
+    text = re.sub(r"<tool_call>.*?</tool_call>", "", text, flags=re.DOTALL)
+    return text.strip()
 
 def _try_parse_fallback_tool_call(content):
     if content == None:
@@ -129,7 +137,7 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, 
         if not message.tool_calls:
             fallback = _try_parse_fallback_tool_call(message.content)
             if fallback is None:
-                return message.content
+                return _strip_leaked_tags(message.content)
             function_name = fallback["name"]
             arguments = fallback["arguments"]
 

@@ -1,4 +1,4 @@
-from agent.agent_loop import _try_parse_fallback_tool_call
+from agent.agent_loop import _try_parse_fallback_tool_call, _strip_leaked_tags
 
 def test_parses_plain_json_tool_call():
     content = '{"name": "read_file", "arguments": {"path": "a.py"}}'
@@ -29,3 +29,13 @@ def test_parses_tool_call_after_explanatory_prose():
 
 def test_returns_none_when_no_json_object_present():
     assert _try_parse_fallback_tool_call("Just an explanation, no tool call here.") is None
+
+def test_strip_leaked_tags_removes_tool_response_block():
+    content = 'Some prefix <tool_response>[{"document": "..."}]</tool_response> and an actual answer.'
+    assert _strip_leaked_tags(content) == "Some prefix  and an actual answer."
+
+def test_strip_leaked_tags_leaves_normal_text_unchanged():
+    assert _strip_leaked_tags("A normal answer with no leaked tags.") == "A normal answer with no leaked tags."
+
+def test_strip_leaked_tags_handles_none():
+    assert _strip_leaked_tags(None) is None
