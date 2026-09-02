@@ -17,7 +17,7 @@ from rich.panel import Panel
 
 console = Console()
 
-PROMPT_WORDS = ["Sjung en sång", "Dansa en dans", "Fundera inte mer", "Livet löser sig", "Lek ha kul", "En dag ska vi ändå dö", "Lika bra att le", "Jobb kan vi hoppas på", "Res till Mallorca"]
+PROMPT_WORDS = ["Dance", "Go on vacation", "Fly to Mallorca", "Sing a song", "Dream a little", "It's only life", "Have some coffee"]
 
 MODEL_ALIASES = {
     "7b": "qwen2.5-coder:7b",
@@ -25,14 +25,18 @@ MODEL_ALIASES = {
     "3.8": "qwen3.8:27b-q4_K_M",
 }
 
-def _spinner(stop_event):
+def _spinner(stop_event, status_holder=None):
     dot_patterns = [".", "..", "..."]
     word = random.choice(PROMPT_WORDS)
     tick = 0
 
     while not stop_event.is_set():
         dots = dot_patterns[tick%len(dot_patterns)]
-        print(f"\r{word}{dots}             ", end="", flush=True)
+        if status_holder is not None and status_holder[0]:
+            display = status_holder[0]
+        else:
+            display = word
+        print(f"\r{display}{dots}             ", end="", flush=True)
         tick +=1
 
         if tick %6 == 0:
@@ -103,7 +107,7 @@ def chat(path):
     console.print(
         f"[bold cyan]Hi, I'm your local coding agent[/bold cyan] (running {config.CHAT_MODEL}). "
         f"Ask me anything about this project — type 'exit' to quit. "
-        f"To switch models, just type 7b, 14b, or 3.8."
+        f"To switch models, just type 7b, 14b, or 3.8. in the chat."
     )
 
     while True:
@@ -126,10 +130,11 @@ def chat(path):
 
 
         stop_event = threading.Event()
-        spinner_thread = threading.Thread(target=_spinner, args=(stop_event,))
+        status_holder = [""]
+        spinner_thread = threading.Thread(target=_spinner, args=(stop_event, status_holder))
         spinner_thread.start()
 
-        answer = run_agent_loop(user_input, history, tool_dispatch)
+        answer = run_agent_loop(user_input, history, tool_dispatch, status_holder)
         
         stop_event.set()
         spinner_thread.join()
