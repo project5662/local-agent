@@ -1,6 +1,9 @@
 import json
+import logging
 from . import config
 from .ollama_client import chat
+
+logger = logging.getLogger(__name__)
 
 def _try_parse_fallback_tool_call(content):
     if content == None:
@@ -133,6 +136,7 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, 
             try:
                 if status_holder is not None:
                     status_holder[0] = f"Using tool: {function_name}"
+                logger.info(f"Calling tool: {function_name} with arguments: {arguments}")
                 result = tool_dispatch[function_name](**arguments)
             except Exception as e:
                 result = f"Error running {function_name}: {e}"
@@ -147,6 +151,7 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, 
             try:
                 if status_holder is not None:
                     status_holder[0] = f"Using tool: {function_name}"
+                logger.info(f"Calling tool: {function_name} with arguments: {arguments}")
                 result = tool_dispatch[function_name](**arguments)
             except Exception as e:
                 result = f"Error running {function_name}: {e}"

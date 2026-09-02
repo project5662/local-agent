@@ -6,3 +6,4 @@ __pycache__/
 lager.db
 lager.dat
 lager_copybook.txt
+agent.log

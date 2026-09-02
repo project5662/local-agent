@@ -3,6 +3,7 @@ import chromadb
 import random 
 import threading
 import time
+import logging
 from pathlib import Path
 from . import config
 from .indexer import build_index
@@ -108,6 +109,12 @@ def chat(path):
         f"[bold cyan]Hi, I'm your local coding agent[/bold cyan] (running {config.CHAT_MODEL}). "
         f"Ask me anything about this project — type 'exit' to quit. "
         f"To switch models, just type 7b, 14b, or 3.8. in the chat."
+    )
+
+    logging.basicConfig(
+        filename="agent.log",
+        level=logging.INFO,
+        format="%(asctime)s %(message)s"
     )
 
     while True:
