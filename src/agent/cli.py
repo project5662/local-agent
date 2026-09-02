@@ -99,10 +99,11 @@ def chat(path):
     )
 
     history = [{"role": "system", "content": system_prompt}]
-  
+
+    console.print(f"[bold cyan]Hi, I'm your local coding agent[/bold cyan] (running {config.CHAT_MODEL}). Ask me anything about this project — type 'exit' to quit.")
 
     while True:
-        user_input = console.input("[bold cyan]How could i help you?[/bold cyan]")
+        user_input = console.input("[bold cyan]You:[/bold cyan] ")
         if user_input in ("exit", "quit"):
             break
         if user_input.strip().lower() in MODEL_ALIASES:
@@ -110,7 +111,7 @@ def chat(path):
             print(f"Changed model to: {config.CHAT_MODEL}")
             continue
         if user_input.strip().lower() == "paste":
-            print("Klistra in din kod/text, avsluta med en rad som bara innehåller END:")
+            print("Paste your text, then end with a line containing only: END")
             lines = []
             while True:
                 line = input()
