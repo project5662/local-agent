@@ -11,6 +11,11 @@ from .ollama_client import embed
 from .agent_loop import run_agent_loop
 from . import tools
 from chromadb.config import Settings
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+
+console = Console()
 
 PROMPT_WORDS = ["Sjung en sång", "Dansa en dans", "Fundera inte mer", "Livet löser sig", "Lek ha kul", "En dag ska vi ändå dö", "Lika bra att le", "Jobb kan vi hoppas på", "Res till Mallorca"]
 
@@ -97,12 +102,12 @@ def chat(path):
   
 
     while True:
-        user_input = input("Vad fan behöver du hjälp med nu då!? ")
+        user_input = console.input("[bold cyan]How could i help you?[/bold cyan]")
         if user_input in ("exit", "quit"):
             break
         if user_input.strip().lower() in MODEL_ALIASES:
             config.CHAT_MODEL = MODEL_ALIASES[user_input.strip().lower()]
-            print(f"Bytte till {config.CHAT_MODEL}")
+            print(f"Changed model to: {config.CHAT_MODEL}")
             continue
         if user_input.strip().lower() == "paste":
             print("Klistra in din kod/text, avsluta med en rad som bara innehåller END:")
@@ -123,4 +128,4 @@ def chat(path):
         
         stop_event.set()
         spinner_thread.join()
-        print(answer)
+        console.print(Panel(Markdown(answer), title="Agent", border_style="cyan"))

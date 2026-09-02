@@ -6,6 +6,7 @@ dependencies = [
     "ollama",
     "chromadb",
     "click",
+    "rich",
 ]
 
 [project.optional-dependencies]
