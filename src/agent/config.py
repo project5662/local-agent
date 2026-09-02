@@ -14,8 +14,12 @@ EMBED_MODEL = "nomic-embed-text"
 CHUNK_SIZE_LINES = 80
 CHUNK_OVERLAP_LINES = 15
 
-# Hur många chunks Retriever hämtar per fråga som default
-DEFAULT_TOP_K = 10
+# Hur många chunks Retriever hämtar per fråga som default.
+# Kompromiss: högt nog för att träffa rätt fil även när modellen själv
+# begär ett för lågt top_k (den missar annars ofta relevanta filer),
+# men lågt nog för att inte dränka modellen i för många blandade träffar
+# (vilket i praktiken gjorde svaren mer generiska istället för fokuserade).
+DEFAULT_TOP_K = 5
 
 # Mappar som aldrig ska indexeras, oavsett .gitignore.
 # "docs" är med eftersom planerings-/specdokumenten där innehåller gammal
@@ -30,5 +34,9 @@ MAX_AGENT_ITERATIONS = 12
 
 # Var Chroma sparar sin data på disk (relativt den indexerade projektmappen)
 CHROMA_PERSIST_DIR = ".agent_index"
+
+MAX_READ_FILE_CHARS = 20000
+
+MAX_GREP_MATCHES = 50
 
 

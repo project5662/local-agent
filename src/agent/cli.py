@@ -9,7 +9,7 @@ from . import config
 from .indexer import build_index
 from .retriever import Retriever
 from .ollama_client import embed
-from .agent_loop import run_agent_loop
+from .agent_loop import run_agent_loop, TOOL_SCHEMAS
 from . import tools
 from chromadb.config import Settings
 from rich.console import Console
@@ -19,6 +19,16 @@ from rich.panel import Panel
 console = Console()
 
 PROMPT_WORDS = ["Dance", "Go on vacation", "Fly to Mallorca", "Sing a song", "Dream a little", "It's only life", "Have some coffee"]
+
+WEARHAUSE_KEYWORDS = [
+    "lager", "artikel", "lagerplats", "lagerstatus",
+    # De 22 påhittade lagerorterna i lager.dat, så att frågor som nämner en
+    # ort (utan att nämna ordet "lager") också räknas som lagerfrågor.
+    "backadal", "bennybyborg", "björkfors", "ekbacka", "furuby", "granberga",
+    "hässledal", "kråkeby", "kvarnholm", "lönnhult", "malmköping", "nordviken",
+    "ormsjö", "ravinstad", "rönnvik", "silverstad", "storsjödal", "sundsholm",
+    "tallmossen", "vintervik", "ängsjö", "åkerhamn",
+]
 
 MODEL_ALIASES = {
     "7b": "qwen2.5-coder:7b",
@@ -44,6 +54,13 @@ def _spinner(stop_event, status_holder=None):
             word = random.choice(PROMPT_WORDS)
         time.sleep(0.3)
     print("\r" + " " * 40 +"\r", end="", flush=True)
+
+def build_tools_for_message(user_input):
+    user_input_lower = user_input.lower()
+    if any(keyword in user_input_lower for keyword in WEARHAUSE_KEYWORDS):
+        return TOOL_SCHEMAS
+    return [schema for schema in TOOL_SCHEMAS if schema["function"]["name"] != "find_max_stock"]
+
 
 @click.group()
 def main():
@@ -78,8 +95,11 @@ def chat(path):
         "read_file": lambda path: tools.read_file(str(tools.resolve_within_project(path, project_root))) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
         "grep": lambda pattern, root: tools.grep(pattern, str(tools.resolve_within_project(root, project_root))) if tools.is_within_project(root, project_root) else f"Error: path is outside the project directory: {root}",
         "list_dir": lambda path: tools.list_dir(str(tools.resolve_within_project(path, project_root))) if tools.is_within_project(path, project_root) else f"Error: path is outside the project directory: {path}",
-        "search_code": lambda query, top_k: tools.search_code(retriever, query, top_k),
-        "find_max_stock": lambda data_path: tools.find_max_stock(str(tools.resolve_within_project(data_path, project_root))) if tools.is_within_project(data_path, project_root) else f"Error: outside project: {data_path}",
+        # Modellen väljer ofta ett för litet top_k (t.ex. 1) på egen hand, vilket
+        # gör att den relevanta filen missas även när indexet är korrekt.
+        # Tvinga därför alltid minst config.DEFAULT_TOP_K träffar.
+        "search_code": lambda query, top_k: tools.search_code(retriever, query, max(top_k, config.DEFAULT_TOP_K)),
+        "find_max_stock": lambda data_path, location=None: tools.find_max_stock(str(tools.resolve_within_project(data_path, project_root)), location) if tools.is_within_project(data_path, project_root) else f"Error: outside project: {data_path}",
     }
 
     system_prompt = (
@@ -111,7 +131,17 @@ def chat(path):
         "that was explicitly returned to you by list_dir, search_code, or grep in "
         "this conversation. If you need to read a specific file but don't already "
         "have its exact, confirmed path, call list_dir or search_code FIRST to find "
-        "it - do not guess a plausible-sounding filename."
+        "it - do not guess a plausible-sounding filename. "
+        "You have direct access to these tools right now - you must call them "
+        "yourself in this same turn, never ask the user to run a tool and report "
+        "back the result. "
+        "When asked to explain, review, or improve a function's CODE (as opposed "
+        "to what result it produces on real data), you must call read_file or "
+        "search_code to retrieve its actual source text first, and base any "
+        "'current code' in your diff verbatim on that tool result. Running a "
+        "tool to see its output does NOT show you its source code - never "
+        "reconstruct or guess a function's implementation from its name or "
+        "description."
     )
 
     history = [{"role": "system", "content": system_prompt}]
@@ -151,7 +181,8 @@ def chat(path):
         spinner_thread = threading.Thread(target=_spinner, args=(stop_event, status_holder))
         spinner_thread.start()
 
-        answer = run_agent_loop(user_input, history, tool_dispatch, status_holder)
+        tools_for_turn = build_tools_for_message(user_input)
+        answer = run_agent_loop(user_input, history, tool_dispatch, tools=tools_for_turn, status_holder=status_holder)
         
         stop_event.set()
         spinner_thread.join()

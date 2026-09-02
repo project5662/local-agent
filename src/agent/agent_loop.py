@@ -100,13 +100,22 @@ TOOL_SCHEMAS = [
         "function": {
             "name": "find_max_stock",
             "description": (
-                "Find which article has the highest total quantity, "
-                "summed across all its warehouse locations, in a fixed-width "
-                "inventory data file (e.g. lager.dat)."
+                "Find which article has the highest total quantity in a "
+                "fixed-width inventory data file (e.g. lager.dat). Without "
+                "'location', sums each article across ALL its warehouse "
+                "locations combined. With 'location', only counts stock at "
+                "that one specific location - use this when the question "
+                "asks about a specific warehouse/city, not the grand total."
             ),
             "parameters": {
                 "type": "object",
-                "properties": {"data_path": {"type": "string"}},
+                "properties": {
+                    "data_path": {"type": "string"},
+                    "location": {
+                        "type": "string",
+                        "description": "Optional: restrict to this one warehouse location only.",
+                    },
+                },
                 "required": ["data_path"],
             },
         },
@@ -122,13 +131,13 @@ def _trim_history(history, max_messages=10):
         other_messages = [m for m in history if m["role"] != "system"]
         return system_messages + other_messages[-max_messages:]
 
-def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, status_holder=None):
+def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, tools=TOOL_SCHEMAS, status_holder=None):
     history.append({"role": "user", "content": user_message})
 
     for _ in range(config.MAX_AGENT_ITERATIONS):
         history[:] = _trim_history(history)
         try:
-            message = chat(history, tools=TOOL_SCHEMAS)
+            message = chat(history, tools=tools)
         except Exception as e:
             return f"Fel vid anrop till modellen: {e}"
 

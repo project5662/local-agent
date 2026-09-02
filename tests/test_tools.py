@@ -13,6 +13,22 @@ def test_read_file_missing_file_returns_error_string(tmp_path):
     result = read_file(str(tmp_path / "missing.py"))
     assert "not found" in result.lower() or "error" in result.lower()
 
+def test_read_file_rejects_file_larger_than_limit(tmp_path, monkeypatch):
+    import agent.tools as tools_module
+    monkeypatch.setattr(tools_module.config, "MAX_READ_FILE_CHARS", 10)
+    p = tmp_path / "big.py"
+    p.write_text("x" * 11)
+    result = read_file(str(p))
+    assert "too large" in result.lower()
+
+def test_read_file_allows_file_within_limit(tmp_path, monkeypatch):
+    import agent.tools as tools_module
+    monkeypatch.setattr(tools_module.config, "MAX_READ_FILE_CHARS", 10)
+    p = tmp_path / "small.py"
+    p.write_text("x" * 10)
+    result = read_file(str(p))
+    assert result == "x" * 10
+
 def test_grep_finds_matching_lines(tmp_path):
     (tmp_path / "a.py").write_text("def add(): pass\ndef sub(): pass\n")
     (tmp_path / "b.py").write_text("class Widget: pass\n")
@@ -65,4 +81,30 @@ def test_find_max_stock_sums_across_locations_and_picks_highest(tmp_path):
 
 def test_find_max_stock_missing_file_returns_error_string(tmp_path):
     result = find_max_stock(str(tmp_path / "missing.dat"))
+    assert "error" in result.lower()
+
+def test_find_max_stock_filters_by_location(tmp_path):
+    content = (
+        _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00001", "Test1", 100, "Kategori", "Plats2") + "\n"  # totalt 200 över alla platser
+        + _make_row("ART-00002", "Test2", 150, "Kategori", "Plats1") + "\n"  # men mest i Plats1
+    )
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = find_max_stock(str(p), location="Plats1")
+    assert "ART-00002" in result
+    assert "150" in result
+
+def test_find_max_stock_location_is_case_insensitive_and_ignores_padding(tmp_path):
+    content = _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = find_max_stock(str(p), location="plats1")
+    assert "ART-00001" in result
+
+def test_find_max_stock_unknown_location_returns_error_string(tmp_path):
+    content = _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = find_max_stock(str(p), location="Okänd Ort")
     assert "error" in result.lower()
