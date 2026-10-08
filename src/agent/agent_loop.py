@@ -120,6 +120,94 @@ TOOL_SCHEMAS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "find_min_stock",
+            "description": (
+                "Find which article has the LOWEST total quantity in a "
+                "fixed-width inventory data file (e.g. lager.dat). Without "
+                "'location', sums each article across ALL its warehouse "
+                "locations combined. With 'location', only counts stock at "
+                "that one specific location - use this when the question "
+                "asks about a specific warehouse/city, not the grand total."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data_path": {"type": "string"},
+                    "location": {
+                        "type": "string",
+                        "description": "Optional: restrict to this one warehouse location only.",
+                    },
+                },
+                "required": ["data_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_stock_by_location",
+            "description": (
+                "List the stock quantity of a single specific article at "
+                "EACH of its warehouse locations, one line per location, in "
+                "a fixed-width inventory data file (e.g. lager.dat). Use "
+                "this when asked for a breakdown by location for one "
+                "article, not a grand total."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data_path": {"type": "string"},
+                    "artikelnummer": {
+                        "type": "string",
+                        "description": "The article number to look up, e.g. 'ART-00689'.",
+                    },
+                },
+                "required": ["data_path", "artikelnummer"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "list_locations",
+            "description": (
+                "List every distinct warehouse location that appears in a "
+                "fixed-width inventory data file (e.g. lager.dat). Use this "
+                "when asked to list/enumerate all warehouses/cities, "
+                "instead of trying to read or grep the whole file yourself."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data_path": {"type": "string"},
+                },
+                "required": ["data_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "stock_distribution_chart",
+            "description": (
+                "Show an ASCII bar chart of the total stock quantity at "
+                "each warehouse location, summed across all articles at "
+                "that location, in a fixed-width inventory data file (e.g. "
+                "lager.dat). Use this when asked for a chart/diagram/graph "
+                "of how stock is distributed across warehouses."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "data_path": {"type": "string"},
+                },
+                "required": ["data_path"],
+            },
+        },
+    },
 ]
 
 def _trim_history(history, max_messages=10):
@@ -146,6 +234,14 @@ def run_agent_loop(user_message: str, history: list[dict], tool_dispatch: dict, 
         if not message.tool_calls:
             fallback = _try_parse_fallback_tool_call(message.content)
             if fallback is None:
+                # Tillfällig diagnostik: vi har sett svar som INNEHÅLLER en
+                # giltig-utseende {"name": ..., "arguments": ...}-JSON som
+                # ändå aldrig kördes som ett verktyg (bekräftat i loggen -
+                # inget "Calling tool"-anrop syns), men kunde inte reproducera
+                # varför utifrån en rekonstruerad kopia av texten. Logga rå
+                # content här så vi ser exakt vad modellen skickade nästa
+                # gång det händer, istället för att gissa.
+                logger.info(f"No fallback tool call found in content: {message.content!r}")
                 return _strip_leaked_tags(message.content)
             function_name = fallback["name"]
             arguments = fallback["arguments"]

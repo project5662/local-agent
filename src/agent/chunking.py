@@ -41,6 +41,14 @@ def chunk_python_code(text: str) -> list[str] | None:
             start = node.lineno - 1
             end = node.end_lineno
             chunk_lines = rows[start:end]
-            chunks.append("\n".join(chunk_lines))
+            # En enskild funktion/klass kan i sig vara för stor för
+            # embedding-modellens kontextgräns (hände på riktigt med en
+            # 7700-tecken chat()-funktion). Falla då tillbaka på den
+            # radbaserade chunkningen för just den här funktionen, istället
+            # för att alltid skicka in den som en enda chunk.
+            if len(chunk_lines) > 80:
+                chunks.extend(chunk_text("\n".join(chunk_lines), 80, 15))
+            else:
+                chunks.append("\n".join(chunk_lines))
     
     return chunks

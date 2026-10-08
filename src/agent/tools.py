@@ -36,7 +36,59 @@ def find_max_stock(data_path: str, location: str = None):
     except Exception:
         return f"Error: could not open file {data_path}"
 
+def find_min_stock(data_path: str, location: str = None):
+    try:
+        with open(data_path) as f:
+            totals = {}
+            for row in f:
+                row_location = row[66:81].strip()
+                if location is not None and row_location.lower() != location.lower():
+                    continue
+                art_number = row[0:10].strip()
+                stock = int(row[45:51])
+                totals[art_number] = totals.get(art_number, 0) + stock
 
+            if not totals:
+                return f"Error: no stock data found for location {location}"
+
+            min_article = min(totals, key=totals.get)
+            if location is not None:
+                return f"{min_article} med totalt {totals[min_article]} st i {location}"
+            return f"{min_article} med totalt {totals[min_article]} st över alla lagerplatser"
+    except Exception:
+        return f"Error: could not open file {data_path}"
+
+def list_stock_by_location(data_path: str, artikelnummer: str):
+    try:
+        with open(data_path) as f:
+            results = []
+            article_name = None
+            for row in f:
+                row_art_number = row[0:10].strip()
+                if row_art_number.lower() != artikelnummer.lower():
+                    continue
+                if article_name is None:
+                    article_name = row[10:45].strip()
+                row_location = row[66:81].strip()
+                stock = int(row[45:51])
+                results.append(f"- {row_location}: {stock} st")
+
+            if not results:
+                return f"Error: article {artikelnummer} not found"
+
+            return f"Artikel: {artikelnummer} {article_name}\n" + "\n".join(results)
+    except Exception:
+        return f"Error: could not open file {data_path}"
+
+def list_locations(data_path: str):
+    try:
+        with open(data_path) as f:
+            locations = set()
+            for row in f:
+                locations.add(row[66:81].strip())
+            return "\n".join(f"- {loc}" for loc in sorted(locations))
+    except Exception:
+        return f"Error: could not open file {data_path}"
 
 def resolve_within_project(path_str, project_root):
     p = Path(path_str)
@@ -96,4 +148,40 @@ def search_code(retriever, query: str, top_k: int):
 def propose_edit(path: str, explanation: str, diff: str):
     return f"Proposed edit to {path}:\n{explanation}\n\n{diff}"
 
+def stock_totals_by_location(data_path: str):
+    totals_per_location = {}
+    with open(data_path) as f:
+        for row in f:
+            location = row[66:81].strip()
+            stock = int(row[45:51])
+            totals_per_location[location] = totals_per_location.get(location, 0) + stock
+    return totals_per_location
 
+def stock_distribution_chart(data_path: str):
+    try:
+        with open(data_path) as f:
+            totals_per_location = {}
+            for row in f:
+                location = row[66:81].strip()
+                stock = int(row[45:51])
+                totals_per_location[location] = totals_per_location.get(location, 0) + stock
+
+        if not totals_per_location:
+            return f"Error: no stock data found in {data_path}"
+
+        max_stock = max(totals_per_location.values())
+        max_bar_width = 30
+
+        rows = [
+            "Totalt lagersaldo per ort (summa av alla artiklars antal, st)",
+            "Total stock per location (sum of all articles' units)",
+            "",
+        ]
+        for location, total in sorted(totals_per_location.items(), key=lambda item: item[1], reverse=True):
+            bar_length = int((total / max_stock) * max_bar_width) if max_stock > 0 else 0
+            bar = "█" * bar_length
+            rows.append(f"{location:15} {bar} {total} st")
+
+        return "```\n" + "\n".join(rows) + "\n```"
+    except Exception:
+        return f"Error: could not open file {data_path}"

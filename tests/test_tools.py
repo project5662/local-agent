@@ -1,5 +1,5 @@
 from pathlib import Path
-from agent.tools import read_file, grep, list_dir, is_within_project, resolve_within_project, find_max_stock
+from agent.tools import read_file, grep, list_dir, is_within_project, resolve_within_project, find_max_stock, find_min_stock, list_stock_by_location, list_locations
 
 def _make_row(art, namn, stock, kategori, plats):
     return art.ljust(10) + namn.ljust(35) + str(stock).rjust(6, "0") + kategori.ljust(15) + plats.ljust(15)
@@ -107,4 +107,74 @@ def test_find_max_stock_unknown_location_returns_error_string(tmp_path):
     p = tmp_path / "lager.dat"
     p.write_text(content)
     result = find_max_stock(str(p), location="Okänd Ort")
+    assert "error" in result.lower()
+
+def test_find_min_stock_sums_across_locations_and_picks_lowest(tmp_path):
+    content = (
+        _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00001", "Test1", 100, "Kategori", "Plats2") + "\n"  # totalt 200
+        + _make_row("ART-00002", "Test2", 50, "Kategori", "Plats1") + "\n"   # totalt 50, lägst
+    )
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = find_min_stock(str(p))
+    assert "ART-00002" in result
+    assert "50" in result
+
+def test_find_min_stock_filters_by_location(tmp_path):
+    content = (
+        _make_row("ART-00001", "Test1", 200, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00002", "Test2", 50, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00002", "Test2", 10, "Kategori", "Plats2") + "\n"  # lägst, men bara i Plats2
+    )
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = find_min_stock(str(p), location="Plats2")
+    assert "ART-00002" in result
+    assert "10" in result
+
+def test_find_min_stock_missing_file_returns_error_string(tmp_path):
+    result = find_min_stock(str(tmp_path / "missing.dat"))
+    assert "error" in result.lower()
+
+def test_list_stock_by_location_returns_one_line_per_location(tmp_path):
+    content = (
+        _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00001", "Test1", 50, "Kategori", "Plats2") + "\n"
+        + _make_row("ART-00002", "Test2", 999, "Kategori", "Plats1") + "\n"
+    )
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = list_stock_by_location(str(p), "ART-00001")
+    assert "Plats1: 100 st" in result
+    assert "Plats2: 50 st" in result
+    assert "ART-00002" not in result
+
+def test_list_stock_by_location_is_case_insensitive(tmp_path):
+    content = _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = list_stock_by_location(str(p), "art-00001")
+    assert "Plats1: 100 st" in result
+
+def test_list_stock_by_location_unknown_article_returns_error_string(tmp_path):
+    content = _make_row("ART-00001", "Test1", 100, "Kategori", "Plats1") + "\n"
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = list_stock_by_location(str(p), "ART-99999")
+    assert "error" in result.lower()
+
+def test_list_locations_returns_sorted_unique_locations(tmp_path):
+    content = (
+        _make_row("ART-00001", "Test1", 100, "Kategori", "Plats2") + "\n"
+        + _make_row("ART-00001", "Test1", 50, "Kategori", "Plats1") + "\n"
+        + _make_row("ART-00002", "Test2", 10, "Kategori", "Plats1") + "\n"  # dubblett, ska bara synas en gång
+    )
+    p = tmp_path / "lager.dat"
+    p.write_text(content)
+    result = list_locations(str(p))
+    assert result == "- Plats1\n- Plats2"
+
+def test_list_locations_missing_file_returns_error_string(tmp_path):
+    result = list_locations(str(tmp_path / "missing.dat"))
     assert "error" in result.lower()
