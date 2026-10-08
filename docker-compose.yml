@@ -1,0 +1,9 @@
+services:
+  agent:
+    build: .
+    volumes:
+      - .:/local_agent
+    environment:
+      - AGENT_COLLECTION_NAME=local_agent
+    stdin_open: true
+    tty: true

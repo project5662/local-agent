@@ -1,0 +1,11 @@
+.venv/
+.git/
+__pycache__
+*.pyc
+*.egg-info/
+.agent_index/
+lager.dat
+lager_copybook.txt
+agent.log
+.pytest_cache/
+
