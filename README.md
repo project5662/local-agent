@@ -2,6 +2,8 @@
 
 A fully offline coding and inventory assistant, built around a local LLM (via [Ollama](https://ollama.com)) and a RAG pipeline over a project's own files. No API keys, no cloud calls, no data leaves the machine.
 
+`#LocalLLM` `#RAG` `#Ollama` `#Qwen` `#AppliedAI` `#MachineLearning` `#AIAgent` `#OfflineAI` `#ToolCalling`
+
 The demo scenario is a simulated wholesale warehouse (`lager.dat`), built to resemble the fixed-width, COBOL-era inventory systems still common in that industry — a realistic example of adding an AI assistant on top of that kind of legacy data without touching the underlying system.
 
 > **Note:** `lager.dat` is synthetic, randomly generated data. It is not real inventory data from any company.
@@ -73,6 +75,10 @@ Requires [Ollama](https://ollama.com) running locally with at least one `qwen2.5
 ## Model choice
 
 Three models were tried: `qwen2.5-coder:7b`, `qwen2.5-coder:14b`, and `qwen3.8:27b-q4_K_M`. `14b` gave the best balance of answer quality and speed for this agent's multi-step tool-calling workflow, and is the default. `27b` is large relative to this machine's 24 GB unified memory, which made it noticeably heavier to run, and it also hit a separate, confirmed bug: intermittent tool-calling failures (`no user query found`, see below) traced to Ollama's own support for that model — not a memory issue, which was specifically tested and ruled out.
+
+## Hardware
+
+Developed and run on a **MacBook Air, Apple M5, 24 GB unified memory**. All models were run through Ollama's Metal (GPU) backend on-device — nothing was offloaded to a cloud GPU at any point. This is also roughly the practical ceiling for this machine: `qwen3.8:27b-q4_K_M` (~17 GB) runs, but leaves little headroom for anything else running at the same time, which is part of why `14b` (~9 GB) is the default.
 
 ## Known limitations
 
