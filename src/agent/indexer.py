@@ -56,7 +56,6 @@ def build_index(project_root, chroma_client, collection_name, embed_fn):
             chunks = chunk_text(content, config.CHUNK_SIZE_LINES, config.CHUNK_OVERLAP_LINES)
 
         
-
         for i, chunk in enumerate(chunks):
             embedding = embed_fn(chunk)
             all_ids.append(f"{relative_path}:{i}")
