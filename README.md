@@ -10,7 +10,13 @@ The demo scenario is a simulated wholesale warehouse (`lager.dat`), built to res
 
 > **Note:** `lager.dat` is synthetic, randomly generated data. It is not real inventory data from any company.
 
-![The web UI answering a stock question and showing a bar chart of stock distribution across warehouse locations](assets/screenshots/web-ui-chart.png)
+A full conversation in the web UI — a stock question, a follow-up that relies on session memory, a chart request, and a final per-location breakdown of the same article, all in one session:
+
+![The agent answering a total stock question for ART-00004, then its article name when asked as a follow-up](assets/screenshots/web-ui-question.png)
+
+![A follow-up chart request answered with a text-based bar chart of stock distribution across all warehouse locations](assets/screenshots/web-ui-chart.png)
+
+![A further follow-up asking for the per-location stock breakdown of the same article, answered correctly using the earlier context](assets/screenshots/web-ui-locations.png)
 
 ## What it does
 
