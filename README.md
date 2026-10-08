@@ -2,7 +2,7 @@
 
 A fully offline coding and inventory assistant, built around a local LLM (via [Ollama](https://ollama.com)) and a RAG pipeline over a project's own files. No API keys, no cloud calls, no data leaves the machine.
 
-`#LocalLLM` `#RAG` `#RAGPipeline` `#Ollama` `#Qwen` `#AppliedAI` `#MachineLearning` `#AIAgent` `#AgenticAI` `#OfflineAI` `#ToolCalling` `#FunctionCalling` `#VectorSearch` `#SemanticSearch` `#PromptEngineering` `#EdgeAI` `#OnDeviceAI` `#MLEngineer` `#AIEngineer` `#SoftwareEngineer` `#DataScience` `#Portfolio` `#BuildInPublic`
+`#LocalLLM` `#RAG` `#RAGPipeline` `#Ollama` `#Qwen` `#AppliedAI` `#MachineLearning` `#AIAgent` `#AgenticAI` `#OfflineAI` `#ToolCalling` `#FunctionCalling` `#VectorSearch` `#SemanticSearch` `#PromptEngineering` `#EdgeAI` `#OnDeviceAI` `#MLEngineer` `#AIEngineer` `#SoftwareEngineer` `#DataScience` `#Portfolio` `#BuildInPublic` `#KTH` `#OpenToWork`
 
 The demo scenario is a simulated wholesale warehouse (`lager.dat`), built to resemble the fixed-width, COBOL-era inventory systems still common in that industry — a realistic example of adding an AI assistant on top of that kind of legacy data without touching the underlying system.
 
