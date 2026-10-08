@@ -4,6 +4,8 @@ A fully offline coding and inventory assistant, built around a local LLM (via [O
 
 `#LocalLLM` `#RAG` `#RAGPipeline` `#Ollama` `#Qwen` `#AppliedAI` `#MachineLearning` `#AIAgent` `#AgenticAI` `#OfflineAI` `#ToolCalling` `#FunctionCalling` `#VectorSearch` `#SemanticSearch` `#PromptEngineering` `#EdgeAI` `#OnDeviceAI` `#MLEngineer` `#AIEngineer` `#SoftwareEngineer` `#DataScience` `#Portfolio` `#BuildInPublic` `#KTH` `#OpenToWork`
 
+Built using an AI-assisted workflow with [Claude Code](https://claude.com/claude-code): I designed the architecture and wrote the implementation myself, with Claude Code used for pair-programming, code review, and debugging throughout.
+
 The demo scenario is a simulated wholesale warehouse (`lager.dat`), built to resemble the fixed-width, COBOL-era inventory systems still common in that industry — a realistic example of adding an AI assistant on top of that kind of legacy data without touching the underlying system.
 
 > **Note:** `lager.dat` is synthetic, randomly generated data. It is not real inventory data from any company.
